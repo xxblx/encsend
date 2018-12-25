@@ -5,6 +5,7 @@ import argparse
 
 import pyodbc
 
+from encsend.client import send_message
 from encsend.server import start_encsend_server
 from encsend.sql import CREATE, INSERT, SELECT
 from encsend.utils import create_signing_key
@@ -74,6 +75,8 @@ def main():
     message_send_parser.add_argument('-k', '--key', type=str,
                                      help='host\'s hex encoded verify key')
     message_send_parser.add_argument('--id', type=int, help='host\'s id')
+    message_send_parser.add_argument('-m', '--message', type=str,
+                                     required=True)
 
     args = parser.parse_args()
     if 'used' not in args:
@@ -89,7 +92,8 @@ def main():
     elif args.used == 'host-ls':
         select_hosts(args.dsn)
     elif args.used == 'message-send':
-        raise NotImplementedError
+        send_message(args.message, args.dsn, args.path, args.host_key,
+                     args.host_id)
 
 
 if __name__ == '__main__':

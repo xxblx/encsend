@@ -32,9 +32,9 @@ def select_hosts(dsn):
     with pyodbc.connect(DSN) as conn:
         cur = conn.cursor()
         cur.execute(SELECT['hosts-ls'])
-        print('id\tkey')
+        print('\t'.join(['id', 'key', 'host', 'port']))
         for row in cur.fetchall():
-            print('%s\t%s')
+            print('\t'.join(row))
 
 
 def main():

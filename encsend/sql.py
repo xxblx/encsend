@@ -49,5 +49,14 @@ SELECT host, port FROM hosts_t WHERE host_key = ?
 
     'messages': """
 SELECT message_id, message, host_id, datetime FROM messages_t
+"""
+}
+
+DELETE = {
+    'messages-id': """
+DELETE FROM messages_t WHERE message_id = ?
 """,
+    'messages-all': """
+DELETE FROM messages_t
+"""
 }

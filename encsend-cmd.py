@@ -7,7 +7,7 @@ import pyodbc
 
 from encsend.client import send_message
 from encsend.server import start_encsend_server
-from encsend.sql import CREATE, INSERT, SELECT
+from encsend.sql import CREATE, DELETE, INSERT, SELECT
 from encsend.utils import create_signing_key, get_verify_key_hex
 try:
     from encsend.conf import DSN
@@ -46,6 +46,18 @@ def select_messages(dsn):
             print('\t'.join(map(str, row)))
 
 
+def delete_message(dsn, message_id):
+    with pyodbc.connect(DSN) as conn:
+        cur = conn.cursor()
+        cur.execute(DELETE['messages-id'], (message_id,))
+
+
+def delete_all_messages(dsn):
+    with pyodbc.connect(DSN) as conn:
+        cur = conn.cursor()
+        cur.execute(DELETE['messages-all'])
+
+
 def main():
     parser = argparse.ArgumentParser(prog='encsend')
 
@@ -80,6 +92,13 @@ def main():
     message_ls_parser = subparsers.add_parser('message-ls')
     message_ls_parser.set_defaults(used='message-ls')
     message_ls_parser.add_argument('--dsn', type=str, default=DSN)
+
+    message_rm_parser = subparsers.add_parser('message-rm')
+    message_rm_parser.set_defaults(used='message-rm')
+    message_rm_parser.add_argument('--dsn', type=str, default=DSN)
+    message_rm_parser.add_argument('--id', type=int, default=None)
+    message_rm_parser.add_argument('-a', '--all', action='store_true',
+                                   default=False)
 
     message_send_parser = subparsers.add_parser('message-send')
     message_send_parser.set_defaults(used='message-send')
@@ -116,6 +135,11 @@ def main():
         select_hosts(args.dsn)
     elif args.used == 'message-ls':
         select_messages(args.dsn)
+    elif args.used == 'message-rm':
+        if args.all:
+            delete_all_messages(args.dsn)
+        else:
+            delete_message(args.dsn, args.id)
     elif args.used == 'message-send':
         send_message(args.message, args.dsn, args.path, args.key, args.id)
     elif args.used == 'verify-key':

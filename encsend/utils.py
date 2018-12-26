@@ -2,6 +2,7 @@
 
 import os
 
+from nacl.encoding import HexEncoder
 from nacl.signing import SigningKey
 
 
@@ -32,6 +33,20 @@ def get_signing_key(path=None):
         signature_bytes = f.read()
 
     return SigningKey(signature_bytes)
+
+
+def get_verify_key_hex(path=None):
+    """ Return HEX encoded verify key
+
+    :param path: path to signature key file, if path is `None`
+        default path is used
+    :type path: str or None
+    :return: HEX encoded verify key
+    :rtype: bytes
+    """
+    signing_key = get_signing_key(path)
+    verify_key = signing_key.verify_key
+    return verify_key.encode(encoder=HexEncoder)
 
 
 def create_signing_key(path=None):

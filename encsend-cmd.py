@@ -8,7 +8,7 @@ import pyodbc
 from encsend.client import send_message
 from encsend.server import start_encsend_server
 from encsend.sql import CREATE, INSERT, SELECT
-from encsend.utils import create_signing_key
+from encsend.utils import create_signing_key, get_verify_key_hex
 try:
     from encsend.conf import DSN
 except ImportError:
@@ -78,6 +78,14 @@ def main():
     message_send_parser.add_argument('-m', '--message', type=str,
                                      required=True)
 
+    verify_key_parser = subparsers.add_parser(
+        'verify-key',
+        help='print this host\'s verify key'
+    )
+    verify_key_parser.set_defaults(used='verify-key')
+    verify_key_parser.add_argument('-p', '--path', type=str, default=None,
+                                   help='path to signing key file')
+
     args = parser.parse_args()
     if 'used' not in args:
         return
@@ -94,6 +102,9 @@ def main():
     elif args.used == 'message-send':
         send_message(args.message, args.dsn, args.path, args.host_key,
                      args.host_id)
+    elif args.used == 'verify-key':
+        key = get_verify_key_hex(args.path)
+        print(key.decode())
 
 
 if __name__ == '__main__':

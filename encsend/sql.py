@@ -45,5 +45,9 @@ SELECT host_key, host, port FROM hosts_t WHERE host_id = ?
 
     'hosts-key': """
 SELECT host, port FROM hosts_t WHERE host_key = ?
-"""
+""",
+
+    'messages': """
+SELECT message_id, message, host_id, datetime FROM messages_t
+""",
 }

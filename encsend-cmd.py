@@ -37,6 +37,15 @@ def select_hosts(dsn):
             print('\t'.join(map(str, row)))
 
 
+def select_messages(dsn):
+    with pyodbc.connect(DSN) as conn:
+        cur = conn.cursor()
+        cur.execute(SELECT['messages'])
+        print('\t'.join(['id', 'message', 'host_id', 'datetime']))
+        for row in cur.fetchall():
+            print('\t'.join(map(str, row)))
+
+
 def main():
     parser = argparse.ArgumentParser(prog='encsend')
 
@@ -67,6 +76,10 @@ def main():
     host_ls_parser = subparsers.add_parser('host-ls')
     host_ls_parser.set_defaults(used='host-ls')
     host_ls_parser.add_argument('--dsn', type=str, default=DSN)
+
+    message_ls_parser = subparsers.add_parser('message-ls')
+    message_ls_parser.set_defaults(used='message-ls')
+    message_ls_parser.add_argument('--dsn', type=str, default=DSN)
 
     message_send_parser = subparsers.add_parser('message-send')
     message_send_parser.set_defaults(used='message-send')
@@ -101,6 +114,8 @@ def main():
         insert_host(args.key, args.dsn, args.host, args.port)
     elif args.used == 'host-ls':
         select_hosts(args.dsn)
+    elif args.used == 'message-ls':
+        select_messages(args.dsn)
     elif args.used == 'message-send':
         send_message(args.message, args.dsn, args.path, args.key, args.id)
     elif args.used == 'verify-key':

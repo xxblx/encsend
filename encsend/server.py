@@ -47,6 +47,8 @@ class EncSendServer:
             now = mktime(datetime_now.utctimetuple())
             values = (message, host_id, now)
 
+            # with aioodbc <= 0.3.2 this code will not work because of
+            # https://github.com/aio-libs/aioodbc/issues/114
             async with self.db_pool.acquire() as conn:
                 async with conn.cursor() as cur:
                     await cur.execute(INSERT['messages'], values)

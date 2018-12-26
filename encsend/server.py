@@ -23,7 +23,20 @@ finally:
 
 
 class EncSendServer:
+    """ EncSend server side implementation """
     def __init__(self, loop, host, port, dsn, signature_path=None):
+        """
+        :param loop: asyncio event loop
+        :param host: tcp server host
+        :type host: str
+        :param port: tcp server port
+        :type port: int
+        :param dsn: Data Source Name, information about database driver,
+            server, database, etc
+        :type dsn: str
+        :param signature_path: custom path to signature key file
+        :type signature_path: str or None
+        """
         self.loop = loop
         self.host = host
         self.port = port
@@ -44,11 +57,10 @@ class EncSendServer:
         message, host_id = await self.read_message(data)
 
         if message is not None:
+            # unix timestamp
             now = mktime(datetime_now.utctimetuple())
             values = (message, host_id, now)
 
-            # with aioodbc <= 0.3.2 this code will not work because of
-            # https://github.com/aio-libs/aioodbc/issues/114
             async with self.db_pool.acquire() as conn:
                 async with conn.cursor() as cur:
                     await cur.execute(INSERT['messages'], values)
@@ -60,9 +72,8 @@ class EncSendServer:
         :type data: bytes
         :return: tuple with message and host_id if message was decrypted
             and signature verified, otherwise - None
-        :rtype: (bytes, int) or None
+        :rtype: (str, int) or None
         """
-
         # TODO: check magic byte
         unsealed_box = SealedBox(self.private_key)
         try:
@@ -71,6 +82,7 @@ class EncSendServer:
             return
         dct = json.loads(json_data.decode())
 
+        # a dictionary has invalid structure
         if dct.keys() != {'host', 'message'}:
             return
 
@@ -91,7 +103,7 @@ class EncSendServer:
         except BadSignatureError:
             return
 
-        return message, host_id[0][0]
+        return message.decode(), host_id[0][0]
 
     def start(self):
         self.init_keys()
@@ -110,6 +122,19 @@ class EncSendServer:
 
 
 def start_encsend_server(host=HOST, port=PORT, dsn=DSN, path=None):
+    """ Start encsend server
+
+    :param host: tcp server host
+    :type host: str
+    :param port: tcp server port
+    :type port: int
+    :param dsn: Data Source Name, information about database driver,
+        server, database, etc
+    :type dsn: str
+    :param path: path to signature key file, if path is `None`
+        default path is used
+    :type path: str or None
+    """
     loop = asyncio.get_event_loop()
     encsend_server = EncSendServer(loop=loop, host=HOST, port=PORT, dsn=DSN,
                                    signature_path=path)

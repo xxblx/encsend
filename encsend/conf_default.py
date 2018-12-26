@@ -3,5 +3,5 @@
 # TCP Server
 HOST = '127.0.0.1'
 PORT = 8888
-# Database
+# Data Source Name, database driver, server, db name, etc
 DSN = 'Driver=SQLite3;Database=sqlite.db'

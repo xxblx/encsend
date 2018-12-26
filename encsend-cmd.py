@@ -46,13 +46,13 @@ def main():
     init_parser.set_defaults(used='init')
     init_parser.add_argument('--dsn', type=str, default=DSN)
     init_parser.add_argument('-p', '--path', type=str, default=None,
-                             help='path to signature file')
+                             help='path to signing key file')
 
     server_parser = subparsers.add_parser('server')
     server_parser.set_defaults(used='server')
     server_parser.add_argument('--dsn', type=str, default=DSN)
     server_parser.add_argument('-p', '--path', type=str, default=None,
-                               help='path to signature file')
+                               help='path to signing key file')
     server_parser.add_argument('--host', type=str, default='127.0.0.1')
     server_parser.add_argument('--port', type=int, default=8888)
 
@@ -72,7 +72,7 @@ def main():
     message_send_parser.set_defaults(used='message-send')
     message_send_parser.add_argument('--dsn', type=str, default=DSN)
     message_send_parser.add_argument('-p', '--path', type=str, default=None,
-                                     help='path to signature file')
+                                     help='path to signing key file')
     message_send_parser.add_argument('-k', '--key', type=str, default=None,
                                      help='host\'s hex encoded verify key')
     message_send_parser.add_argument('--id', type=int, default=None,

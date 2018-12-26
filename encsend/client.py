@@ -38,6 +38,19 @@ class EncSendClient:
         raise NotImplementedError
 
     def ecnrypt_message(self, message, host_key):
+        """ Encrypt, sign and encode a message with host's key.
+
+        Method creates a dictionary with two keys: message - signed
+        message, host - current host's hex encoded verify key, serializes
+        it to json, encrypts and encodes the result
+
+        :param message: message for the host
+        :type message: bytes
+        :param host_key: hex encoded the host's verify key
+        :type host_key: bytes
+        :return: signed, encrypted and hex encoded message
+        :rtype: bytes
+        """
         verify_key = VerifyKey(host_key.encode(), encoder=HexEncoder)
         public_key = verify_key.to_curve25519_public_key()
         sealed_box = SealedBox(public_key)

@@ -73,9 +73,10 @@ def main():
     message_send_parser.add_argument('--dsn', type=str, default=DSN)
     message_send_parser.add_argument('-p', '--path', type=str, default=None,
                                      help='path to signature file')
-    message_send_parser.add_argument('-k', '--key', type=str,
+    message_send_parser.add_argument('-k', '--key', type=str, default=None,
                                      help='host\'s hex encoded verify key')
-    message_send_parser.add_argument('--id', type=int, help='host\'s id')
+    message_send_parser.add_argument('--id', type=int, default=None,
+                                     help='host\'s id')
     message_send_parser.add_argument('-m', '--message', type=str,
                                      required=True)
 
@@ -101,8 +102,7 @@ def main():
     elif args.used == 'host-ls':
         select_hosts(args.dsn)
     elif args.used == 'message-send':
-        send_message(args.message, args.dsn, args.path, args.host_key,
-                     args.host_id)
+        send_message(args.message, args.dsn, args.path, args.key, args.id)
     elif args.used == 'verify-key':
         key = get_verify_key_hex(args.path)
         print(key.decode())

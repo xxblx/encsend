@@ -34,7 +34,7 @@ def select_hosts(dsn):
         cur.execute(SELECT['hosts-ls'])
         print('\t'.join(['id', 'key', 'host', 'port']))
         for row in cur.fetchall():
-            print('\t'.join(row))
+            print('\t'.join(map(str, row)))
 
 
 def main():
@@ -58,6 +58,7 @@ def main():
 
     host_add_parser = subparsers.add_parser('host-add')
     host_add_parser.set_defaults(used='host-add')
+    host_add_parser.add_argument('--dsn', type=str, default=DSN)
     host_add_parser.add_argument('-k', '--key', type=str, required=True,
                                  help='host\'s hex encoded verify key')
     host_add_parser.add_argument('--host', type=str, required=True)

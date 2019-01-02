@@ -5,51 +5,24 @@ import json
 from datetime import datetime
 from time import mktime
 
-import aioodbc
 from nacl.encoding import HexEncoder
 from nacl.exceptions import BadSignatureError, CryptoError
 from nacl.public import SealedBox
 from nacl.signing import VerifyKey
 
-from .sql import INSERT, SELECT
-from .utils import get_signing_key
+from .base import ServerBase
+from ..sql import INSERT, SELECT
 
 try:
-    from . import conf
+    from .. import conf
 except ImportError:
-    from . import conf_default as conf
+    from .. import conf_default as conf
 finally:
     HOST, PORT, DSN = conf.HOST, conf.PORT, conf.DSN
 
 
-class EncSendServer:
+class EncSendServer(ServerBase):
     """ EncSend server side implementation """
-    def __init__(self, loop, host, port, dsn, signature_path=None):
-        """
-        :param loop: asyncio event loop
-        :param host: tcp server host
-        :type host: str
-        :param port: tcp server port
-        :type port: int
-        :param dsn: Data Source Name, information about database driver,
-            server, database, etc
-        :type dsn: str
-        :param signature_path: custom path to signature key file
-        :type signature_path: str or None
-        """
-        self.loop = loop
-        self.host = host
-        self.port = port
-        self.dsn = dsn
-        self.signature_path = signature_path
-
-    async def init_db(self):
-        self.db_pool = await aioodbc.create_pool(dsn=self.dsn, loop=self.loop)
-
-    def init_keys(self):
-        self.signing_key = get_signing_key(self.signature_path)
-        self.private_key = self.signing_key.to_curve25519_private_key()
-
     async def tcp_server(self, reader, writer):
         data = await reader.read()
         writer.close()
@@ -106,7 +79,6 @@ class EncSendServer:
         return message.decode(), host_id[0][0]
 
     def start(self):
-        self.init_keys()
         self.loop.run_until_complete(self.init_db())
         self.coro = asyncio.start_server(self.tcp_server, self.host, self.port,
                                          loop=self.loop)
